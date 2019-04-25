@@ -1,10 +1,14 @@
-import Ember from 'ember';
+import Component from '@ember/component';
 import layout from '../templates/components/full-calendar';
 import { InvokeActionMixin } from 'ember-invoke-action';
+import {computed, observer} from '@ember/object';
+import {getOwner} from '@ember/application';
+import {assign} from '@ember/polyfills';
+import jQuery from 'jquery';
+import {schedule} from '@ember/runloop';
 
-const { assign, observer, computed, getOwner } = Ember;
 
-export default Ember.Component.extend(InvokeActionMixin, {
+export default Component.extend(InvokeActionMixin, {
 
   /////////////////////////////////////
   // PROPERTIES
@@ -139,11 +143,11 @@ export default Ember.Component.extend(InvokeActionMixin, {
     // add the license key for the scheduler
     options.schedulerLicenseKey = this.get('schedulerLicenseKey');
 
-    this.$().fullCalendar(options);
+    jQuery(this.get('element')).fullCalendar(options);
   },
 
   willDestroyElement() {
-    this.$().fullCalendar('destroy');
+    jQuery(this.get('element')).fullCalendar('destroy');
   },
 
   /////////////////////////////////////
@@ -200,7 +204,7 @@ export default Ember.Component.extend(InvokeActionMixin, {
 
       // create an event handler that runs the function inside an event loop.
       actions[eventName] = (...args) => {
-        Ember.run.schedule('actions', this, () => {
+        schedule('actions', this, () => {
           this.invokeAction(eventName, ...args, this.$());
         });
       };
@@ -219,7 +223,7 @@ export default Ember.Component.extend(InvokeActionMixin, {
    * re-render if changes are detected
    */
   observeEvents: observer('events.[]', function () {
-     const fc = this.$();
+     const fc = jQuery(this.get('element'));
      fc.fullCalendar('removeEvents');
      fc.fullCalendar('addEventSource', this.get('events'));
   }),
@@ -229,7 +233,7 @@ export default Ember.Component.extend(InvokeActionMixin, {
    * re-render if changes are detected
    */
   observeEventSources: observer('eventSources.[]', function () {
-     const fc = this.$();
+     const fc = jQuery(this.get('element'));
      fc.fullCalendar('removeEventSources');
      this.get('eventSources').forEach(function(source){
        fc.fullCalendar('addEventSource', source);
@@ -242,7 +246,7 @@ export default Ember.Component.extend(InvokeActionMixin, {
    * @type {[type]}
    */
   observeResources: observer('resources.[]', function() {
-    const fc = this.$();
+    const fc = jQuery(this.get('element'));
     fc.fullCalendar('refetchResources');
   }),
 
@@ -250,10 +254,10 @@ export default Ember.Component.extend(InvokeActionMixin, {
    * Observes the 'viewName' property allowing FullCalendar view to be
    * changed from outside of the component.
    */
-  viewNameDidChange: Ember.observer('viewName', function() {
+  viewNameDidChange: observer('viewName', function() {
     const viewName = this.get('viewName');
     const viewRange = this.get('viewRange');
-    this.$().fullCalendar('changeView', viewName, viewRange);
+    jQuery(this.get('element')).fullCalendar('changeView', viewName, viewRange);
 
     // Call action if it exists
     if (this.get('onViewChange')) {
@@ -265,9 +269,9 @@ export default Ember.Component.extend(InvokeActionMixin, {
    * Observes `date` property allowing date to be changed from outside
    * of the component.
    */
-  dateDidChange: Ember.observer('date', function() {
+  dateDidChange: observer('date', function() {
     let date = this.get('date');
-    this.$().fullCalendar('gotoDate', date);
+    jQuery(this.get('element')).fullCalendar('gotoDate', date);
   })
 
 });
