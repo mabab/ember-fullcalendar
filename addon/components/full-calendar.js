@@ -4,7 +4,7 @@ import { InvokeActionMixin } from 'ember-invoke-action';
 import {computed, observer} from '@ember/object';
 import {getOwner} from '@ember/application';
 import {assign} from '@ember/polyfills';
-import jQuery from 'jquery';
+import jQuery from '@ember/jquery';
 import {schedule} from '@ember/runloop';
 
 
